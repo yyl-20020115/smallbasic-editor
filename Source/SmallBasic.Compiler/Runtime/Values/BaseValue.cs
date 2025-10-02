@@ -2,21 +2,20 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Compiler.Runtime
+namespace SmallBasic.Compiler.Runtime;
+
+using System.Diagnostics;
+
+[DebuggerDisplay("{ToDisplayString()}")]
+public abstract class BaseValue
 {
-    using System.Diagnostics;
+    public abstract string ToDisplayString();
 
-    [DebuggerDisplay("{ToDisplayString()}")]
-    public abstract class BaseValue
-    {
-        public abstract string ToDisplayString();
+    public sealed override string ToString() => this.ToDisplayString();
 
-        public sealed override string ToString() => this.ToDisplayString();
+    internal abstract bool ToBoolean();
 
-        internal abstract bool ToBoolean();
+    internal abstract decimal ToNumber();
 
-        internal abstract decimal ToNumber();
-
-        internal abstract ArrayValue ToArray();
-    }
+    internal abstract ArrayValue ToArray();
 }

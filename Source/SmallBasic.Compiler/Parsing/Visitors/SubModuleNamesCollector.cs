@@ -2,25 +2,23 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Compiler.Parsing
+
+using System.Collections.Generic;
+
+namespace SmallBasic.Compiler.Parsing;
+internal sealed class SubModuleNamesCollector : BaseSyntaxNodeVisitor
 {
-    using System.Collections.Generic;
-    using SmallBasic.Compiler.Diagnostics;
+    private readonly HashSet<string> names = new HashSet<string>();
 
-    internal sealed class SubModuleNamesCollector : BaseSyntaxNodeVisitor
+    public SubModuleNamesCollector(StatementBlockSyntax syntaxTree)
     {
-        private readonly HashSet<string> names = new HashSet<string>();
+        this.Visit(syntaxTree);
+    }
 
-        public SubModuleNamesCollector(StatementBlockSyntax syntaxTree)
-        {
-            this.Visit(syntaxTree);
-        }
+    public IReadOnlyCollection<string> Names => this.names;
 
-        public IReadOnlyCollection<string> Names => this.names;
-
-        private protected override void VisitSubModuleStatement(SubModuleStatementSyntax node)
-        {
-            this.names.Add(node.NameToken.Text);
-        }
+    private protected override void VisitSubModuleStatement(SubModuleStatementSyntax node)
+    {
+        this.names.Add(node.NameToken.Text);
     }
 }

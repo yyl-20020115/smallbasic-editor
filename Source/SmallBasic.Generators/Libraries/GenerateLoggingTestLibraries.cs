@@ -2,183 +2,182 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Generators.Scanning
+namespace SmallBasic.Generators.Scanning;
+
+using System.Linq;
+using SmallBasic.Utilities;
+
+public sealed class GenerateLoggingTestLibraries : BaseConverterTask<LibraryCollection>
 {
-    using System.Linq;
-    using SmallBasic.Utilities;
-
-    public sealed class GenerateLoggingTestLibraries : BaseConverterTask<LibraryCollection>
+    protected override void Generate(LibraryCollection model)
     {
-        protected override void Generate(LibraryCollection model)
+        this.Line("namespace SmallBasic.Tests");
+        this.Brace();
+        this.Line("#pragma warning disable CS0067 // The event '{0}' is never used");
+
+        this.Line("using System;");
+        this.Line("using System.Text;");
+        this.Line("using System.Threading.Tasks;");
+        this.Line("using SmallBasic.Compiler.Runtime;");
+        this.Blank();
+
+        foreach (Library library in model)
         {
-            this.Line("namespace SmallBasic.Tests");
-            this.Brace();
-            this.Line("#pragma warning disable CS0067 // The event '{0}' is never used");
-
-            this.Line("using System;");
-            this.Line("using System.Text;");
-            this.Line("using System.Threading.Tasks;");
-            this.Line("using SmallBasic.Compiler.Runtime;");
-            this.Blank();
-
-            foreach (Library library in model)
-            {
-                this.GenerateLibraryImplementation(library);
-            }
-
-            this.GenerateLibrariesCollection(model);
-
-            this.Line("#pragma warning restore CS0067 // The event '{0}' is never used");
-            this.Unbrace();
+            this.GenerateLibraryImplementation(library);
         }
 
-        private void GenerateLibraryImplementation(Library library)
+        this.GenerateLibrariesCollection(model);
+
+        this.Line("#pragma warning restore CS0067 // The event '{0}' is never used");
+        this.Unbrace();
+    }
+
+    private void GenerateLibraryImplementation(Library library)
+    {
+        this.Line($"internal sealed class Logging{library.Name}Library : I{library.Name}Library");
+        this.Brace();
+
+        this.Line("private readonly StringBuilder log;");
+        this.Blank();
+
+        this.Line($"public Logging{library.Name}Library(StringBuilder log)");
+        this.Brace();
+        this.Line("this.log = log;");
+        this.Unbrace();
+
+        foreach (Event @event in library.Events)
         {
-            this.Line($"internal sealed class Logging{library.Name}Library : I{library.Name}Library");
-            this.Brace();
-
-            this.Line("private readonly StringBuilder log;");
+            this.Line($"public event Action {@event.Name};");
             this.Blank();
+        }
 
-            this.Line($"public Logging{library.Name}Library(StringBuilder log)");
-            this.Brace();
-            this.Line("this.log = log;");
-            this.Unbrace();
-
-            foreach (Event @event in library.Events)
+        foreach (Property property in library.Properties.Where(p => !p.IsDeprecated))
+        {
+            if (property.HasGetter)
             {
-                this.Line($"public event Action {@event.Name};");
-                this.Blank();
-            }
+                string type = property.IsAsync
+                    ? $"Task<{property.Type.ToNativeType()}>"
+                    : property.Type.ToNativeType();
 
-            foreach (Property property in library.Properties.Where(p => !p.IsDeprecated))
-            {
-                if (property.HasGetter)
-                {
-                    string type = property.IsAsync
-                        ? $"Task<{property.Type.ToNativeType()}>"
-                        : property.Type.ToNativeType();
-
-                    this.Line($"public {type} Get_{property.Name}()");
-                    this.Brace();
-
-                    this.Line($@"this.log.AppendLine($""{library.Name}.Get_{property.Name}()"");");
-
-                    if (property.IsAsync)
-                    {
-                        this.Line($"return Task.FromResult({GetDefaultForType(property.Type)});");
-                    }
-                    else
-                    {
-                        this.Line($"return {GetDefaultForType(property.Type)};");
-                    }
-
-                    this.Unbrace();
-                }
-
-                if (property.HasSetter)
-                {
-                    this.Line($"public {(property.IsAsync ? "Task" : "void")} Set_{property.Name}({property.Type.ToNativeType()} value)");
-                    this.Brace();
-
-                    this.Line($@"this.log.AppendLine($""{library.Name}.Set_{property.Name}('{{{PrintValueOfType("value", property.Type)}}}')"");");
-
-                    if (property.IsAsync)
-                    {
-                        this.Line($"return Task.CompletedTask;");
-                    }
-
-                    this.Unbrace();
-                }
-            }
-
-            foreach (Method method in library.Methods.Where(m => !m.IsDeprecated))
-            {
-                string type = method.ReturnType.IsDefault()
-                    ? (method.IsAsync ? "Task" : "void")
-                    : (method.IsAsync ? $"Task<{method.ReturnType.ToNativeType()}>" : method.ReturnType.ToNativeType());
-
-                this.Line($"public {type} {method.Name}({method.Parameters.Select(p => $"{p.Type.ToNativeType()} {p.Name.ToLowerFirstChar()}").Join(", ")})");
+                this.Line($"public {type} Get_{property.Name}()");
                 this.Brace();
 
-                this.Line($@"this.log.AppendLine($""{library.Name}.{method.Name}({method.Parameters.Select(p => $"{p.Name.ToLowerFirstChar()}: '{{{PrintValueOfType(p.Name, p.Type)}}}'").Join(", ")})"");");
+                this.Line($@"this.log.AppendLine($""{library.Name}.Get_{property.Name}()"");");
 
-                if (method.ReturnType.IsDefault())
+                if (property.IsAsync)
                 {
-                    if (method.IsAsync)
-                    {
-                        this.Line("return Task.CompletedTask;");
-                    }
+                    this.Line($"return Task.FromResult({GetDefaultForType(property.Type)});");
                 }
                 else
                 {
-                    if (method.IsAsync)
-                    {
-                        this.Line($"return Task.FromResult({GetDefaultForType(method.ReturnType)});");
-                    }
-                    else
-                    {
-                        this.Line($"return {GetDefaultForType(method.ReturnType)};");
-                    }
+                    this.Line($"return {GetDefaultForType(property.Type)};");
                 }
 
                 this.Unbrace();
             }
 
-            this.Unbrace();
+            if (property.HasSetter)
+            {
+                this.Line($"public {(property.IsAsync ? "Task" : "void")} Set_{property.Name}({property.Type.ToNativeType()} value)");
+                this.Brace();
+
+                this.Line($@"this.log.AppendLine($""{library.Name}.Set_{property.Name}('{{{PrintValueOfType("value", property.Type)}}}')"");");
+
+                if (property.IsAsync)
+                {
+                    this.Line($"return Task.CompletedTask;");
+                }
+
+                this.Unbrace();
+            }
         }
 
-        private void GenerateLibrariesCollection(LibraryCollection model)
+        foreach (Method method in library.Methods.Where(m => !m.IsDeprecated))
         {
-            this.Line("internal sealed class LoggingEngineLibraries : IEngineLibraries");
+            string type = method.ReturnType.IsDefault()
+                ? (method.IsAsync ? "Task" : "void")
+                : (method.IsAsync ? $"Task<{method.ReturnType.ToNativeType()}>" : method.ReturnType.ToNativeType());
+
+            this.Line($"public {type} {method.Name}({method.Parameters.Select(p => $"{p.Type.ToNativeType()} {p.Name.ToLowerFirstChar()}").Join(", ")})");
             this.Brace();
 
-            this.Line("public LoggingEngineLibraries(StringBuilder log)");
-            this.Brace();
+            this.Line($@"this.log.AppendLine($""{library.Name}.{method.Name}({method.Parameters.Select(p => $"{p.Name.ToLowerFirstChar()}: '{{{PrintValueOfType(p.Name, p.Type)}}}'").Join(", ")})"");");
 
-            foreach (var library in model)
+            if (method.ReturnType.IsDefault())
             {
-                this.Line($"this.{library.Name} = new Logging{library.Name}Library(log);");
+                if (method.IsAsync)
+                {
+                    this.Line("return Task.CompletedTask;");
+                }
             }
-
-            this.Unbrace();
-
-            foreach (var library in model)
+            else
             {
-                this.Blank();
-                this.Line($"public I{library.Name}Library {library.Name} {{ get; private set; }}");
+                if (method.IsAsync)
+                {
+                    this.Line($"return Task.FromResult({GetDefaultForType(method.ReturnType)});");
+                }
+                else
+                {
+                    this.Line($"return {GetDefaultForType(method.ReturnType)};");
+                }
             }
 
             this.Unbrace();
         }
 
-        private static string GetDefaultForType(string type)
+        this.Unbrace();
+    }
+
+    private void GenerateLibrariesCollection(LibraryCollection model)
+    {
+        this.Line("internal sealed class LoggingEngineLibraries : IEngineLibraries");
+        this.Brace();
+
+        this.Line("public LoggingEngineLibraries(StringBuilder log)");
+        this.Brace();
+
+        foreach (var library in model)
         {
-            switch (type)
-            {
-                case "StringValue": return "string.Empty";
-                case "NumberValue": return "0m";
-                case "BooleanValue": return "false";
-                case "ArrayValue": return "new ArrayValue()";
-                case "BaseValue": return "StringValue.Create(string.Empty)";
-                default: throw ExceptionUtilities.UnexpectedValue(type);
-            }
+            this.Line($"this.{library.Name} = new Logging{library.Name}Library(log);");
         }
 
-        private static string PrintValueOfType(string name, string type)
+        this.Unbrace();
+
+        foreach (var library in model)
         {
-            switch (type)
-            {
-                case "StringValue":
-                case "NumberValue":
-                case "BooleanValue":
-                    return name;
-                case "BaseValue":
-                case "ArrayValue":
-                    return $"{name}.ToDisplayString()";
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(type);
-            }
+            this.Blank();
+            this.Line($"public I{library.Name}Library {library.Name} {{ get; private set; }}");
+        }
+
+        this.Unbrace();
+    }
+
+    private static string GetDefaultForType(string type)
+    {
+        switch (type)
+        {
+            case "StringValue": return "string.Empty";
+            case "NumberValue": return "0m";
+            case "BooleanValue": return "false";
+            case "ArrayValue": return "new ArrayValue()";
+            case "BaseValue": return "StringValue.Create(string.Empty)";
+            default: throw ExceptionUtilities.UnexpectedValue(type);
+        }
+    }
+
+    private static string PrintValueOfType(string name, string type)
+    {
+        switch (type)
+        {
+            case "StringValue":
+            case "NumberValue":
+            case "BooleanValue":
+                return name;
+            case "BaseValue":
+            case "ArrayValue":
+                return $"{name}.ToDisplayString()";
+            default:
+                throw ExceptionUtilities.UnexpectedValue(type);
         }
     }
 }

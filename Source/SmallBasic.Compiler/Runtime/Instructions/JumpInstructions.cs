@@ -2,89 +2,88 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Compiler.Runtime
+namespace SmallBasic.Compiler.Runtime;
+
+using System;
+using System.Linq;
+using SmallBasic.Compiler.Scanning;
+
+internal sealed class TransientLabelInstruction : BaseJumpInstruction
 {
-    using System;
-    using System.Linq;
-    using SmallBasic.Compiler.Scanning;
-
-    internal sealed class TransientLabelInstruction : BaseJumpInstruction
+    public TransientLabelInstruction(string label, TextRange range)
+        : base(range)
     {
-        public TransientLabelInstruction(string label, TextRange range)
-            : base(range)
-        {
-            this.Label = label;
-        }
-
-        public string Label { get; private set; }
-
-        protected override int GetNextInstructionIndex(SmallBasicEngine engine) => throw new InvalidOperationException("This should have been removed during rewriting.");
+        this.Label = label;
     }
 
-    internal sealed class TransientUnconditionalGoToInstruction : BaseJumpInstruction
+    public string Label { get; private set; }
+
+    protected override int GetNextInstructionIndex(SmallBasicEngine engine) => throw new InvalidOperationException("This should have been removed during rewriting.");
+}
+
+internal sealed class TransientUnconditionalGoToInstruction : BaseJumpInstruction
+{
+    public TransientUnconditionalGoToInstruction(string label, TextRange range)
+        : base(range)
     {
-        public TransientUnconditionalGoToInstruction(string label, TextRange range)
-            : base(range)
-        {
-            this.Label = label;
-        }
-
-        public string Label { get; private set; }
-
-        protected override int GetNextInstructionIndex(SmallBasicEngine engine) => throw new InvalidOperationException("This should have been removed during rewriting.");
+        this.Label = label;
     }
 
-    internal sealed class TransientConditionalGoToInstruction : BaseJumpInstruction
+    public string Label { get; private set; }
+
+    protected override int GetNextInstructionIndex(SmallBasicEngine engine) => throw new InvalidOperationException("This should have been removed during rewriting.");
+}
+
+internal sealed class TransientConditionalGoToInstruction : BaseJumpInstruction
+{
+    public TransientConditionalGoToInstruction(string trueLabelOpt, string falseLabelOpt, TextRange range)
+        : base(range)
     {
-        public TransientConditionalGoToInstruction(string trueLabelOpt, string falseLabelOpt, TextRange range)
-            : base(range)
-        {
-            this.TrueLabelOpt = trueLabelOpt;
-            this.FalseLabelOpt = falseLabelOpt;
-        }
-
-        public string TrueLabelOpt { get; private set; }
-
-        public string FalseLabelOpt { get; private set; }
-
-        protected override int GetNextInstructionIndex(SmallBasicEngine engine) => throw new InvalidOperationException("This should have been removed during rewriting.");
+        this.TrueLabelOpt = trueLabelOpt;
+        this.FalseLabelOpt = falseLabelOpt;
     }
 
-    internal sealed class UnconditionalJumpInstruction : BaseJumpInstruction
+    public string TrueLabelOpt { get; private set; }
+
+    public string FalseLabelOpt { get; private set; }
+
+    protected override int GetNextInstructionIndex(SmallBasicEngine engine) => throw new InvalidOperationException("This should have been removed during rewriting.");
+}
+
+internal sealed class UnconditionalJumpInstruction : BaseJumpInstruction
+{
+    private readonly int target;
+
+    public UnconditionalJumpInstruction(int target, TextRange range)
+        : base(range)
     {
-        private readonly int target;
-
-        public UnconditionalJumpInstruction(int target, TextRange range)
-            : base(range)
-        {
-            this.target = target;
-        }
-
-        protected override int GetNextInstructionIndex(SmallBasicEngine engine) => this.target;
+        this.target = target;
     }
 
-    internal sealed class ConditionalJumpInstruction : BaseJumpInstruction
+    protected override int GetNextInstructionIndex(SmallBasicEngine engine) => this.target;
+}
+
+internal sealed class ConditionalJumpInstruction : BaseJumpInstruction
+{
+    private readonly int? trueTargetOpt;
+    private readonly int? falseTargetOpt;
+
+    public ConditionalJumpInstruction(int? trueTargetOpt, int? falseTargetOpt, TextRange range)
+        : base(range)
     {
-        private readonly int? trueTargetOpt;
-        private readonly int? falseTargetOpt;
+        this.trueTargetOpt = trueTargetOpt;
+        this.falseTargetOpt = falseTargetOpt;
+    }
 
-        public ConditionalJumpInstruction(int? trueTargetOpt, int? falseTargetOpt, TextRange range)
-            : base(range)
+    protected override int GetNextInstructionIndex(SmallBasicEngine engine)
+    {
+        if (engine.EvaluationStack.Pop().ToBoolean())
         {
-            this.trueTargetOpt = trueTargetOpt;
-            this.falseTargetOpt = falseTargetOpt;
+            return this.trueTargetOpt ?? engine.ExecutionStack.Last().InstructionIndex + 1;
         }
-
-        protected override int GetNextInstructionIndex(SmallBasicEngine engine)
+        else
         {
-            if (engine.EvaluationStack.Pop().ToBoolean())
-            {
-                return this.trueTargetOpt ?? engine.ExecutionStack.Last().InstructionIndex + 1;
-            }
-            else
-            {
-                return this.falseTargetOpt ?? engine.ExecutionStack.Last().InstructionIndex + 1;
-            }
+            return this.falseTargetOpt ?? engine.ExecutionStack.Last().InstructionIndex + 1;
         }
     }
 }

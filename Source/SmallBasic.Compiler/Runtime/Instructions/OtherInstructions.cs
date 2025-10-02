@@ -2,100 +2,98 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Compiler.Runtime
+namespace SmallBasic.Compiler.Runtime;
+
+using System.Threading.Tasks;
+using SmallBasic.Compiler.Scanning;
+
+internal sealed class InvokeSubModuleInstruction : BaseNonJumpInstruction
 {
-    using System;
-    using System.Threading.Tasks;
-    using SmallBasic.Compiler.Scanning;
+    private readonly string subModuleName;
 
-    internal sealed class InvokeSubModuleInstruction : BaseNonJumpInstruction
+    public InvokeSubModuleInstruction(string subModuleName, TextRange range)
+        : base(range)
     {
-        private readonly string subModuleName;
-
-        public InvokeSubModuleInstruction(string subModuleName, TextRange range)
-            : base(range)
-        {
-            this.subModuleName = subModuleName;
-        }
-
-        protected override void Execute(SmallBasicEngine engine)
-        {
-            Frame frame = new Frame(engine.Modules[this.subModuleName]);
-            engine.ExecutionStack.AddLast(frame);
-        }
+        this.subModuleName = subModuleName;
     }
 
-    internal sealed class MethodInvocationInstruction : BaseAsyncNonJumpInstruction
+    protected override void Execute(SmallBasicEngine engine)
     {
-        private readonly string library;
-        private readonly string method;
+        Frame frame = new Frame(engine.Modules[this.subModuleName]);
+        engine.ExecutionStack.AddLast(frame);
+    }
+}
 
-        public MethodInvocationInstruction(string library, string method, TextRange range)
-            : base(range)
-        {
-            this.library = library;
-            this.method = method;
-        }
+internal sealed class MethodInvocationInstruction : BaseAsyncNonJumpInstruction
+{
+    private readonly string library;
+    private readonly string method;
 
-        protected override Task Execute(SmallBasicEngine engine)
-        {
-            return Libraries.Types[this.library].Methods[this.method].Execute(engine);
-        }
+    public MethodInvocationInstruction(string library, string method, TextRange range)
+        : base(range)
+    {
+        this.library = library;
+        this.method = method;
     }
 
-    internal sealed class StorePropertyInstruction : BaseAsyncNonJumpInstruction
+    protected override Task Execute(SmallBasicEngine engine)
     {
-        private readonly string library;
-        private readonly string property;
+        return Libraries.Types[this.library].Methods[this.method].Execute(engine);
+    }
+}
 
-        public StorePropertyInstruction(string library, string property, TextRange range)
-            : base(range)
-        {
-            this.library = library;
-            this.property = property;
-        }
+internal sealed class StorePropertyInstruction : BaseAsyncNonJumpInstruction
+{
+    private readonly string library;
+    private readonly string property;
 
-        protected override Task Execute(SmallBasicEngine engine)
-        {
-            return Libraries.Types[this.library].Properties[this.property].Setter(engine);
-        }
+    public StorePropertyInstruction(string library, string property, TextRange range)
+        : base(range)
+    {
+        this.library = library;
+        this.property = property;
     }
 
-    internal sealed class LoadPropertyInstruction : BaseAsyncNonJumpInstruction
+    protected override Task Execute(SmallBasicEngine engine)
     {
-        private readonly string library;
-        private readonly string property;
+        return Libraries.Types[this.library].Properties[this.property].Setter(engine);
+    }
+}
 
-        public LoadPropertyInstruction(string library, string property, TextRange range)
-            : base(range)
-        {
-            this.library = library;
-            this.property = property;
-        }
+internal sealed class LoadPropertyInstruction : BaseAsyncNonJumpInstruction
+{
+    private readonly string library;
+    private readonly string property;
 
-        protected override Task Execute(SmallBasicEngine engine)
-        {
-            return Libraries.Types[this.library].Properties[this.property].Getter(engine);
-        }
+    public LoadPropertyInstruction(string library, string property, TextRange range)
+        : base(range)
+    {
+        this.library = library;
+        this.property = property;
     }
 
-    internal sealed class SetEventCallBackInstruction : BaseNonJumpInstruction
+    protected override Task Execute(SmallBasicEngine engine)
     {
-        private readonly string library;
-        private readonly string eventName;
-        private readonly string subModule;
+        return Libraries.Types[this.library].Properties[this.property].Getter(engine);
+    }
+}
 
-        public SetEventCallBackInstruction(string library, string eventName, string subModule, TextRange range)
-            : base(range)
-        {
-            this.library = library;
-            this.eventName = eventName;
-            this.subModule = subModule;
-        }
+internal sealed class SetEventCallBackInstruction : BaseNonJumpInstruction
+{
+    private readonly string library;
+    private readonly string eventName;
+    private readonly string subModule;
 
-        protected override void Execute(SmallBasicEngine engine)
-        {
-            engine.SetEventCallback(this.library, this.eventName, this.subModule);
-        }
+    public SetEventCallBackInstruction(string library, string eventName, string subModule, TextRange range)
+        : base(range)
+    {
+        this.library = library;
+        this.eventName = eventName;
+        this.subModule = subModule;
+    }
+
+    protected override void Execute(SmallBasicEngine engine)
+    {
+        engine.SetEventCallback(this.library, this.eventName, this.subModule);
     }
 }

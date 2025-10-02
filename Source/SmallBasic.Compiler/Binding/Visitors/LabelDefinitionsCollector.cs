@@ -2,32 +2,29 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Compiler.Binding
+using System.Collections.Generic;
+using SmallBasic.Compiler.Diagnostics;
+
+namespace SmallBasic.Compiler.Binding;
+
+internal sealed class LabelDefinitionsCollector : BaseBoundNodeVisitor
 {
-    using System.Collections.Generic;
-    using SmallBasic.Compiler.Diagnostics;
-    using SmallBasic.Compiler.Parsing;
-    using SmallBasic.Utilities;
+    private readonly DiagnosticBag diagnostics;
+    private readonly HashSet<string> labels = [];
 
-    internal sealed class LabelDefinitionsCollector : BaseBoundNodeVisitor
+    public LabelDefinitionsCollector(DiagnosticBag diagnostics, BoundStatementBlock module)
     {
-        private readonly DiagnosticBag diagnostics;
-        private readonly HashSet<string> labels = new HashSet<string>();
+        this.diagnostics = diagnostics;
+        this.Visit(module);
+    }
 
-        public LabelDefinitionsCollector(DiagnosticBag diagnostics, BoundStatementBlock module)
+    public IReadOnlyCollection<string> Labels => this.labels;
+
+    private protected override void VisitLabelStatement(BoundLabelStatement node)
+    {
+        if (!this.labels.Add(node.Label))
         {
-            this.diagnostics = diagnostics;
-            this.Visit(module);
-        }
-
-        public IReadOnlyCollection<string> Labels => this.labels;
-
-        private protected override void VisitLabelStatement(BoundLabelStatement node)
-        {
-            if (!this.labels.Add(node.Label))
-            {
-                this.diagnostics.ReportTwoLabelsWithTheSameName(node.Syntax.LabelToken.Range, node.Label);
-            }
+            this.diagnostics.ReportTwoLabelsWithTheSameName(node.Syntax.LabelToken.Range, node.Label);
         }
     }
 }

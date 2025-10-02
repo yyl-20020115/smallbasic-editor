@@ -2,107 +2,103 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Generators
+namespace SmallBasic.Generators;
+
+using System;
+using System.IO;
+using System.Text;
+using SmallBasic.Utilities;
+
+public abstract class BaseTask
 {
-    using System;
-    using System.IO;
-    using System.Text;
-    using System.Xml;
-    using System.Xml.Schema;
-    using System.Xml.Serialization;
-    using SmallBasic.Utilities;
+    private readonly StringBuilder builder = new StringBuilder();
 
-    public abstract class BaseTask
+    private bool hasLoggedError = false;
+    private bool braceLastAdded = false;
+    private int indentationLevel = 0;
+
+    protected int SaveAndExit(string filePath)
     {
-        private readonly StringBuilder builder = new StringBuilder();
-
-        private bool hasLoggedError = false;
-        private bool braceLastAdded = false;
-        private int indentationLevel = 0;
-
-        protected int SaveAndExit(string filePath)
+        string result = this.builder.ToString();
+        if (!File.Exists(filePath) || result != File.ReadAllText(filePath))
         {
-            string result = this.builder.ToString();
-            if (!File.Exists(filePath) || result != File.ReadAllText(filePath))
-            {
-                File.WriteAllText(filePath, result);
-            }
-
-            return this.hasLoggedError ? 1 : 0;
+            File.WriteAllText(filePath, result);
         }
 
-        protected void LogError(string message)
+        return this.hasLoggedError ? 1 : 0;
+    }
+
+    protected void LogError(string message)
+    {
+        Console.Error.WriteLine(message);
+        this.hasLoggedError = true;
+    }
+
+    protected void Indent() => this.indentationLevel++;
+
+    protected void Unindent() => this.indentationLevel--;
+
+    protected void Brace()
+    {
+        this.Line("{");
+        this.Indent();
+    }
+
+    protected void Unbrace()
+    {
+        this.braceLastAdded = false;
+        this.Unindent();
+        this.Line("}");
+        this.braceLastAdded = true;
+    }
+
+    protected void Blank()
+    {
+        this.braceLastAdded = false;
+        this.builder.AppendLine();
+    }
+
+    protected void Line(string line)
+    {
+        if (this.braceLastAdded)
         {
-            Console.Error.WriteLine(message);
-            this.hasLoggedError = true;
-        }
-
-        protected void Indent() => this.indentationLevel++;
-
-        protected void Unindent() => this.indentationLevel--;
-
-        protected void Brace()
-        {
-            this.Line("{");
-            this.Indent();
-        }
-
-        protected void Unbrace()
-        {
-            this.braceLastAdded = false;
-            this.Unindent();
-            this.Line("}");
-            this.braceLastAdded = true;
-        }
-
-        protected void Blank()
-        {
-            this.braceLastAdded = false;
             this.builder.AppendLine();
+            this.braceLastAdded = false;
         }
 
-        protected void Line(string line)
+        this.builder.Append(' ', this.indentationLevel * 4);
+        this.builder.AppendLine(line);
+    }
+
+    protected void GenerateDocHeader(string outputFile)
+    {
+        switch (Path.GetExtension(outputFile))
         {
-            if (this.braceLastAdded)
-            {
-                this.builder.AppendLine();
-                this.braceLastAdded = false;
-            }
+            case ".cs":
+                {
+                    this.Line($@"// <copyright file=""{Path.GetFileName(outputFile)}"" company=""MIT License"">");
+                    this.Line("// Licensed under the MIT License. See LICENSE file in the project root for license information.");
+                    this.Line("// </copyright>");
+                    break;
+                }
 
-            this.builder.Append(' ', this.indentationLevel * 4);
-            this.builder.AppendLine(line);
+            case ".ts":
+                {
+                    this.Line("/*!");
+                    this.Line(" * Licensed under the MIT License. See LICENSE file in the project root for license information.");
+                    this.Line(" */");
+                    break;
+                }
+
+            case string other:
+                {
+                    throw ExceptionUtilities.UnexpectedValue(other);
+                }
         }
 
-        protected void GenerateDocHeader(string outputFile)
-        {
-            switch (Path.GetExtension(outputFile))
-            {
-                case ".cs":
-                    {
-                        this.Line($@"// <copyright file=""{Path.GetFileName(outputFile)}"" company=""MIT License"">");
-                        this.Line("// Licensed under the MIT License. See LICENSE file in the project root for license information.");
-                        this.Line("// </copyright>");
-                        break;
-                    }
-
-                case ".ts":
-                    {
-                        this.Line("/*!");
-                        this.Line(" * Licensed under the MIT License. See LICENSE file in the project root for license information.");
-                        this.Line(" */");
-                        break;
-                    }
-
-                case string other:
-                    {
-                        throw ExceptionUtilities.UnexpectedValue(other);
-                    }
-            }
-
-            this.Blank();
-            this.Line("/// <summary>");
-            this.Line("/// This file is auto-generated by a build task. It shouldn't be edited by hand.");
-            this.Line("/// </summary>");
-        }
+        this.Blank();
+        this.Line("/// <summary>");
+        this.Line("/// This file is auto-generated by a build task. It shouldn't be edited by hand.");
+        this.Line("/// </summary>");
     }
 }

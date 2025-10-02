@@ -2,47 +2,46 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Compiler.Runtime
+namespace SmallBasic.Compiler.Runtime;
+
+using System.Diagnostics;
+
+public sealed class Frame
 {
-    using System.Diagnostics;
+    private int index = 0;
 
-    public sealed class Frame
+    internal Frame(RuntimeModule module)
     {
-        private int index = 0;
+        this.Module = module;
+    }
 
-        internal Frame(RuntimeModule module)
+    public RuntimeModule Module { get; private set; }
+
+    public int InstructionIndex
+    {
+        get
         {
-            this.Module = module;
+            return this.index;
         }
 
-        public RuntimeModule Module { get; private set; }
-
-        public int InstructionIndex
+        internal set
         {
-            get
-            {
-                return this.index;
-            }
-
-            internal set
-            {
-                Debug.Assert(value >= 0 && value <= this.Module.Instructions.Count, "Value should be within the module length");
-                this.index = value;
-            }
+            Debug.Assert(value >= 0 && value <= this.Module.Instructions.Count, "Value should be within the module length");
+            this.index = value;
         }
+    }
 
-        public int CurrentSourceLine
+    public int CurrentSourceLine
+    {
+        get
         {
-            get
+            if (this.index < this.Module.Instructions.Count)
             {
-                if (this.index < this.Module.Instructions.Count)
-                {
-                    return this.Module.Instructions[this.index].Range.Start.Line;
-                }
-                else
-                {
-                    return this.Module.Syntax.Range.End.Line;
-                }
+                return this.Module.Instructions[this.index].Range.Start.Line;
+            }
+            else
+            {
+                return this.Module.Syntax.Range.End.Line;
             }
         }
     }

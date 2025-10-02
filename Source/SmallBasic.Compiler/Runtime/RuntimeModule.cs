@@ -2,24 +2,23 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Compiler.Runtime
+namespace SmallBasic.Compiler.Runtime;
+
+using System.Collections.Generic;
+using SmallBasic.Compiler.Parsing;
+
+public sealed class RuntimeModule
 {
-    using System.Collections.Generic;
-    using SmallBasic.Compiler.Parsing;
-
-    public sealed class RuntimeModule
+    internal RuntimeModule(string name, IReadOnlyList<BaseInstruction> instructions, StatementBlockSyntax syntax)
     {
-        internal RuntimeModule(string name, IReadOnlyList<BaseInstruction> instructions, StatementBlockSyntax syntax)
-        {
-            this.Name = name;
-            this.Instructions = instructions;
-            this.Syntax = syntax;
-        }
-
-        public string Name { get; private set; }
-
-        internal IReadOnlyList<BaseInstruction> Instructions { get; private set; }
-
-        internal StatementBlockSyntax Syntax { get; private set; }
+        this.Name = name;
+        this.Instructions = instructions;
+        this.Syntax = syntax;
     }
+
+    public string Name { get; private set; }
+
+    internal IReadOnlyList<BaseInstruction> Instructions { get; private set; }
+
+    internal StatementBlockSyntax Syntax { get; private set; }
 }

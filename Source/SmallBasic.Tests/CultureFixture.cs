@@ -2,15 +2,14 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Tests
-{
-    using System.Globalization;
+namespace SmallBasic.Tests;
 
-    public class CultureFixture
+using System.Globalization;
+
+public class CultureFixture
+{
+    public CultureFixture()
     {
-        public CultureFixture()
-        {
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-        }
+        CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
     }
 }

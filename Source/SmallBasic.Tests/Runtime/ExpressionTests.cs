@@ -2,38 +2,38 @@
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 // </copyright>
 
-namespace SmallBasic.Tests.Runtime
-{
-    using System.Threading.Tasks;
-    using SmallBasic.Compiler;
-    using Xunit;
+namespace SmallBasic.Tests.Runtime;
 
-    public sealed class ExpressionTests : IClassFixture<CultureFixture>
+using System.Threading.Tasks;
+using SmallBasic.Compiler;
+using Xunit;
+
+public sealed class ExpressionTests : IClassFixture<CultureFixture>
+{
+    [Fact]
+    public Task NumericStringsAreTreatedAsNumbers()
     {
-        [Fact]
-        public Task NumericStringsAreTreatedAsNumbers()
-        {
-            return new SmallBasicCompilation(@"
+        return new SmallBasicCompilation(@"
 x = ""1"" + 1
 y = 4 + ""-1""").VerifyLoggingRuntime(memoryContents: @"
 x = 2
 y = 3");
-        }
+    }
 
-        [Fact]
-        public Task NumbersAreConcatenatedWithStrings()
-        {
-            return new SmallBasicCompilation(@"
+    [Fact]
+    public Task NumbersAreConcatenatedWithStrings()
+    {
+        return new SmallBasicCompilation(@"
 x = 200 + "","" + 100
 y = 300 + "", "" + 100").VerifyLoggingRuntime(memoryContents: @"
 x = 200,100
 y = 300, 100");
-        }
+    }
 
-        [Fact]
-        public Task ItEvaluatesArrayAccess()
-        {
-            return new SmallBasicCompilation(@"
+    [Fact]
+    public Task ItEvaluatesArrayAccess()
+    {
+        return new SmallBasicCompilation(@"
 ar[0] = ""first""
 ar[1][0] = ""second""
 ar[1][2] = ""third""
@@ -51,22 +51,22 @@ found_second = third
 not_found_ar = 
 not_found_first = 
 not_found_second = ");
-        }
+    }
 
-        [Fact]
-        public Task ItSupportsDBCSInStrings()
-        {
-            return new SmallBasicCompilation(@"
+    [Fact]
+    public Task ItSupportsDBCSInStrings()
+    {
+        return new SmallBasicCompilation(@"
 TextWindow.WriteLine(""こんにちは!"")
 ").VerifyLoggingRuntime(expectedLog: @"
 TextWindow.WriteLine(data: 'こんにちは!')
 ");
-        }
+    }
 
-        [Fact]
-        public Task ItSupportsDBCSInIdentifiers()
-        {
-            return new SmallBasicCompilation(@"
+    [Fact]
+    public Task ItSupportsDBCSInIdentifiers()
+    {
+        return new SmallBasicCompilation(@"
 サブ()
 TextWindow.WriteLine(変数)
 Goto ラベル
@@ -80,6 +80,5 @@ TextWindow.WriteLine(""should be skipped"")
 ").VerifyLoggingRuntime(expectedLog: @"
 TextWindow.WriteLine(data: '5')
 ");
-        }
     }
 }
