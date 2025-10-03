@@ -28,22 +28,22 @@ namespace SmallBasic.Editor.Libraries
         public void Set_LastError(string value) => this.lastError = value;
 
         public Task<string> AppendContents(string filePath, string contents)
-            => this.Execute(Bridge.File.AppendContents(new FileBridgeModels.PathAndContentsArgs(filePath, contents)));
+            => this.Execute(BridgeUtil.File.AppendContents(new FileBridgeModels.PathAndContentsArgs(filePath, contents)));
 
         public Task<string> CopyFile(string sourceFilePath, string destinationFilePath)
-            => this.Execute(Bridge.File.CopyFile(new FileBridgeModels.SourceAndDestinationArgs(sourceFilePath, destinationFilePath)));
+            => this.Execute(BridgeUtil.File.CopyFile(new FileBridgeModels.SourceAndDestinationArgs(sourceFilePath, destinationFilePath)));
 
         public Task<string> CreateDirectory(string directoryPath)
-            => this.Execute(Bridge.File.CreateDirectory(directoryPath));
+            => this.Execute(BridgeUtil.File.CreateDirectory(directoryPath));
 
         public Task<string> DeleteDirectory(string directoryPath)
-            => this.Execute(Bridge.File.DeleteDirectory(directoryPath));
+            => this.Execute(BridgeUtil.File.DeleteDirectory(directoryPath));
 
         public Task<string> DeleteFile(string filePath)
-            => this.Execute(Bridge.File.DeleteFile(filePath));
+            => this.Execute(BridgeUtil.File.DeleteFile(filePath));
 
         public Task<BaseValue> GetDirectories(string directoryPath) => this.Execute(
-            Bridge.File.GetDirectories(directoryPath),
+            BridgeUtil.File.GetDirectories(directoryPath),
             directories =>
             {
                 int i = 1;
@@ -53,7 +53,7 @@ namespace SmallBasic.Editor.Libraries
             });
 
         public Task<BaseValue> GetFiles(string directoryPath) => this.Execute(
-            Bridge.File.GetFiles(directoryPath),
+            BridgeUtil.File.GetFiles(directoryPath),
             files =>
             {
                 int i = 1;
@@ -63,22 +63,22 @@ namespace SmallBasic.Editor.Libraries
             });
 
         public Task<BaseValue> GetTemporaryFilePath()
-            => this.Execute(Bridge.File.GetTemporaryFilePath(), StringValue.Create);
+            => this.Execute(BridgeUtil.File.GetTemporaryFilePath(), StringValue.Create);
 
         public Task<string> InsertLine(string filePath, decimal lineNumber, string contents)
-            => this.Execute(Bridge.File.InsertLine(new FileBridgeModels.PathAndLineAndContentsArgs(filePath, lineNumber, contents)));
+            => this.Execute(BridgeUtil.File.InsertLine(new FileBridgeModels.PathAndLineAndContentsArgs(filePath, lineNumber, contents)));
 
         public Task<BaseValue> ReadContents(string filePath)
-            => this.Execute(Bridge.File.ReadContents(filePath), StringValue.Create);
+            => this.Execute(BridgeUtil.File.ReadContents(filePath), StringValue.Create);
 
         public Task<BaseValue> ReadLine(string filePath, decimal lineNumber)
-            => this.Execute(Bridge.File.ReadLine(new FileBridgeModels.PathAndLineArgs(filePath, lineNumber)), StringValue.Create);
+            => this.Execute(BridgeUtil.File.ReadLine(new FileBridgeModels.PathAndLineArgs(filePath, lineNumber)), StringValue.Create);
 
         public Task<string> WriteContents(string filePath, string contents)
-            => this.Execute(Bridge.File.WriteContents(new FileBridgeModels.PathAndContentsArgs(filePath, contents)));
+            => this.Execute(BridgeUtil.File.WriteContents(new FileBridgeModels.PathAndContentsArgs(filePath, contents)));
 
         public Task<string> WriteLine(string filePath, decimal lineNumber, string contents)
-            => this.Execute(Bridge.File.WriteLine(new FileBridgeModels.PathAndLineAndContentsArgs(filePath, lineNumber, contents)));
+            => this.Execute(BridgeUtil.File.WriteLine(new FileBridgeModels.PathAndLineAndContentsArgs(filePath, lineNumber, contents)));
 
         private async Task<string> Execute(Task<FileBridgeModels.Result> action)
         {

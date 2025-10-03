@@ -43,7 +43,7 @@ namespace SmallBasic.Editor.Components.Display
             this.outputChunks.Add(chunk);
             // Important to prevent th UI from freezing
             await Task.Delay(1).ConfigureAwait(false);
-            await JSInterop.Layout.ScrollIntoView(this.inputFieldRef).ConfigureAwait(false);
+            await JSInteropUtil.Layout.ScrollIntoView(this.inputFieldRef).ConfigureAwait(false);
             this.StateHasChanged();
         }
 
@@ -59,7 +59,7 @@ namespace SmallBasic.Editor.Components.Display
 
             if (this.mode != AcceptedInputMode.None)
             {
-                await JSInterop.Layout.Focus(this.textDisplayRef).ConfigureAwait(false);
+                await JSInteropUtil.Layout.Focus(this.textDisplayRef).ConfigureAwait(false);
             }
 
             this.StateHasChanged();

@@ -80,7 +80,7 @@ namespace SmallBasic.Editor.Components.Pages.Edit
                             name: "error-line",
                             events: new TreeComposer.Events
                             {
-                                OnClickAsync = args => JSInterop.Monaco.SelectRange(range)
+                                OnClickAsync = args => JSInteropUtil.Monaco.SelectRange(range)
                             },
                             body: () =>
                             {

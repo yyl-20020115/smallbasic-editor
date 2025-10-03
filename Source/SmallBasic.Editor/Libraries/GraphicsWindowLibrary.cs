@@ -175,7 +175,7 @@ namespace SmallBasic.Editor.Libraries
 
         public decimal Get_FontSize() => this.libraries.Styles.FontSize;
 
-        public Task<decimal> Get_Height() => JSInterop.Layout.GetElementHeight(GraphicsDisplayStore.RenderArea);
+        public Task<decimal> Get_Height() => JSInteropUtil.Layout.GetElementHeight(GraphicsDisplayStore.RenderArea);
 
         public string Get_LastKey() => this.lastKey;
 
@@ -189,7 +189,7 @@ namespace SmallBasic.Editor.Libraries
 
         public decimal Get_PenWidth() => this.libraries.Styles.PenWidth;
 
-        public Task<decimal> Get_Width() => JSInterop.Layout.GetElementWidth(GraphicsDisplayStore.RenderArea);
+        public Task<decimal> Get_Width() => JSInteropUtil.Layout.GetElementWidth(GraphicsDisplayStore.RenderArea);
 
         public string Get_Title() => GraphicsDisplayStore.Title;
 
@@ -234,7 +234,7 @@ namespace SmallBasic.Editor.Libraries
 
         public void Set_FontSize(decimal value) => this.libraries.Styles = this.libraries.Styles.With(fontSize: value);
 
-        public Task Set_Height(decimal value) => JSInterop.Layout.ShowMessage("Setting GraphicsWindow.Height is not supported in this version of SmallBasic", string.Empty);
+        public Task Set_Height(decimal value) => JSInteropUtil.Layout.ShowMessage("Setting GraphicsWindow.Height is not supported in this version of SmallBasic", string.Empty);
 
         public void Set_PenColor(string value)
         {
@@ -253,9 +253,9 @@ namespace SmallBasic.Editor.Libraries
 
         public void Set_Title(string value) => GraphicsDisplayStore.Title = value;
 
-        public Task Set_Width(decimal value) => JSInterop.Layout.ShowMessage("Setting GraphicsWindow.Width is not supported in this version of SmallBasic", string.Empty);
+        public Task Set_Width(decimal value) => JSInteropUtil.Layout.ShowMessage("Setting GraphicsWindow.Width is not supported in this version of SmallBasic", string.Empty);
 
-        public Task ShowMessage(string text, string title) => JSInterop.Layout.ShowMessage(text, title);
+        public Task ShowMessage(string text, string title) => JSInteropUtil.Layout.ShowMessage(text, title);
 
         public void Hide() => GraphicsDisplayStore.SetVisibility(false);
 

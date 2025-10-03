@@ -60,7 +60,6 @@
       <ClientWebPackArgs Include="w" Condition="'$(Watch)' == 'True'" />
     </ItemGroup>
 
-    <Exec Command="node --max-old-space-size=7168 $(MSBuildProjectDirectory)/node_modules/webpack/bin/webpack.js @(ClientWebPackArgs->'--%(Identity) %(Value)', ' ')" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 
 </Project>

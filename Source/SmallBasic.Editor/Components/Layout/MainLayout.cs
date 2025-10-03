@@ -22,7 +22,7 @@ namespace SmallBasic.Editor.Components.Layout
 
         protected override Task OnInitAsync()
         {
-            return JSInterop.Layout.InitializeWebView(CultureInfo.CurrentCulture.Name, EditorResources.ApplicationTitle);
+            return JSInteropUtil.Layout.InitializeWebView(CultureInfo.CurrentCulture.Name, EditorResources.ApplicationTitle);
         }
 
         protected sealed override void ComposeTree(TreeComposer composer)
@@ -85,7 +85,7 @@ namespace SmallBasic.Editor.Components.Layout
 #if IsBuildingForDesktop
             return Bridge.Process.OpenExternalLink(url);
 #else
-            return JSInterop.Layout.OpenExternalLink(url);
+            return JSInteropUtil.Layout.OpenExternalLink(url);
 #endif
         }
     }

@@ -96,7 +96,7 @@ namespace SmallBasic.Editor.Components.Pages.Debug
             if (this.engine.State == ExecutionState.Paused)
             {
                 // Adding one because monaco is one based.
-                Task.Run(() => JSInterop.Monaco.HighlightLine(this.engine.CurrentSourceLine + 1));
+                Task.Run(() => JSInteropUtil.Monaco.HighlightLine(this.engine.CurrentSourceLine + 1));
             }
         }
     }
@@ -134,7 +134,7 @@ namespace SmallBasic.Editor.Components.Pages.Debug
                         Actions.Action(composer, "continue", EditorResources.Actions_Continue, () =>
                         {
                             this.Engine.Continue(pauseAtNextLine: false);
-                            return JSInterop.Monaco.RemoveDecorations();
+                            return JSInteropUtil.Monaco.RemoveDecorations();
                         });
 
                         break;

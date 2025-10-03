@@ -30,12 +30,12 @@ namespace SmallBasic.Editor.Components.Toolbox
 
         public void Dispose()
         {
-            JSInterop.Monaco.Dispose().ConfigureAwait(false);
+            JSInteropUtil.Monaco.Dispose().ConfigureAwait(false);
         }
 
         protected override Task OnAfterRenderAsync()
         {
-            return JSInterop.Monaco.Initialize(this.editorElement, CompilationStore.Compilation.Text, this.IsReadOnly);
+            return JSInteropUtil.Monaco.Initialize(this.editorElement, CompilationStore.Compilation.Text, this.IsReadOnly);
         }
 
         protected override void ComposeTree(TreeComposer composer)

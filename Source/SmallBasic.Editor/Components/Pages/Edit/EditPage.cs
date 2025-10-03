@@ -43,19 +43,19 @@ namespace SmallBasic.Editor.Components.Pages.Edit
 
         protected override void ComposeLeftActions(TreeComposer composer)
         {
-            Actions.Action(composer, "new", EditorResources.Actions_New, onClick: () => JSInterop.Monaco.ClearEditor(EditorResources.Actions_ClearEverythingConfirmation));
+            Actions.Action(composer, "new", EditorResources.Actions_New, onClick: () => JSInteropUtil.Monaco.ClearEditor(EditorResources.Actions_ClearEverythingConfirmation));
             Actions.Separator(composer);
-            Actions.Action(composer, "save", EditorResources.Actions_Save, onClick: JSInterop.Monaco.SaveToFile);
-            Actions.Action(composer, "open", EditorResources.Actions_Open, onClick: () => JSInterop.Monaco.OpenFile(EditorResources.Actions_ClearEverythingConfirmation));
+            Actions.Action(composer, "save", EditorResources.Actions_Save, onClick: JSInteropUtil.Monaco.SaveToFile);
+            Actions.Action(composer, "open", EditorResources.Actions_Open, onClick: () => JSInteropUtil.Monaco.OpenFile(EditorResources.Actions_ClearEverythingConfirmation));
             Actions.DisabledAction(composer, "import", EditorResources.Actions_Import, message: EditorResources.Actions_DisabledMessage_ComingSoon);
             Actions.DisabledAction(composer, "publish", EditorResources.Actions_Publish, message: EditorResources.Actions_DisabledMessage_ComingSoon);
             Actions.Separator(composer);
-            Actions.Action(composer, "cut", EditorResources.Actions_Cut, onClick: JSInterop.Monaco.Cut);
-            Actions.Action(composer, "copy", EditorResources.Actions_Copy, onClick: JSInterop.Monaco.Copy);
-            Actions.Action(composer, "paste", EditorResources.Actions_Paste, onClick: JSInterop.Monaco.Paste);
+            Actions.Action(composer, "cut", EditorResources.Actions_Cut, onClick: JSInteropUtil.Monaco.Cut);
+            Actions.Action(composer, "copy", EditorResources.Actions_Copy, onClick: JSInteropUtil.Monaco.Copy);
+            Actions.Action(composer, "paste", EditorResources.Actions_Paste, onClick: JSInteropUtil.Monaco.Paste);
             Actions.Separator(composer);
-            Actions.Action(composer, "undo", EditorResources.Actions_Undo, onClick: JSInterop.Monaco.Undo);
-            Actions.Action(composer, "redo", EditorResources.Actions_Redo, onClick: JSInterop.Monaco.Redo);
+            Actions.Action(composer, "undo", EditorResources.Actions_Undo, onClick: JSInteropUtil.Monaco.Undo);
+            Actions.Action(composer, "redo", EditorResources.Actions_Redo, onClick: JSInteropUtil.Monaco.Redo);
         }
 
         protected override void ComposeRightActions(TreeComposer composer)

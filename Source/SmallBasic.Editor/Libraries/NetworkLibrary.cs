@@ -10,9 +10,9 @@ namespace SmallBasic.Editor.Libraries
     internal sealed class NetworkLibrary : INetworkLibrary
     {
         public Task<string> DownloadFile(string url)
-            => Bridge.Network.DownloadFile(url);
+            => BridgeUtil.Network.DownloadFile(url);
 
         public Task<string> GetWebPageContents(string url)
-            => Bridge.Network.GetWebPageContents(url);
+            => BridgeUtil.Network.GetWebPageContents(url);
     }
 }

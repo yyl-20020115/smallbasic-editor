@@ -160,8 +160,8 @@ namespace SmallBasic.Editor.Components.Pages.Edit
 
         private async Task ScrollDown(double amount)
         {
-            double areaHeight = (double)await JSInterop.Layout.GetElementHeight(this.scrollArea).ConfigureAwait(false);
-            double contentsHeight = (double)await JSInterop.Layout.GetElementHeight(this.scrollAreaContents).ConfigureAwait(false);
+            double areaHeight = (double)await JSInteropUtil.Layout.GetElementHeight(this.scrollArea).ConfigureAwait(false);
+            double contentsHeight = (double)await JSInteropUtil.Layout.GetElementHeight(this.scrollAreaContents).ConfigureAwait(false);
 
             double hiddenOffset = Math.Max(0, contentsHeight + this.currentScrollMargin - areaHeight);
             if (hiddenOffset != 0)
